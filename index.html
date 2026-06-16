@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LabShot – Web Photobox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+
+<!-- ▓▓▓▓▓▓▓▓▓▓▓▓▓▓  SPLASH  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓ -->
+<div id="splash">
+  <div class="splash-card">
+
+    <div class="splash-brand">
+      <img src="assets/logo-ti-umy.png" alt="Logo" class="splash-logo" onerror="this.style.display='none'">
+      <div>
+        <div class="splash-eyebrow">TI UMY · Web Photobox</div>
+        <div class="splash-name">LabShot</div>
+        <div class="splash-sub">Laboratorium Teknologi Informasi UMY</div>
+      </div>
+    </div>
+
+    <div class="splash-divider"></div>
+
+    <div class="splash-guide-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8.01"/></svg>
+      Cara Penggunaan
+    </div>
+
+    <ol class="splash-steps">
+      <li>
+        <div class="ss-icon" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#065f46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <div class="ss-body">
+          <strong>Pilih Tema &amp; Frame</strong>
+          <span>Pilih kategori tema, lalu pilih template bingkai foto yang diinginkan.</span>
+        </div>
+      </li>
+      <li>
+        <div class="ss-icon" style="background:linear-gradient(135deg,#fce7f3,#fbcfe8)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#9d174d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <div class="ss-body">
+          <strong>Pilih Filter</strong>
+          <span>Normal, B&amp;W, Warm, Bright, Vintage, atau Cool — terlihat langsung di kamera.</span>
+        </div>
+      </li>
+      <li>
+        <div class="ss-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="ss-body">
+          <strong>Aktifkan Kamera &amp; Foto</strong>
+          <span>Klik Aktifkan Kamera, lalu Mulai Foto. Countdown 3 detik sebelum jepret.</span>
+        </div>
+      </li>
+      <li>
+        <div class="ss-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="ss-body">
+          <strong>Revisi (Opsional)</strong>
+          <span>Atur urutan atau retake foto tertentu sebelum menyimpan.</span>
+        </div>
+      </li>
+      <li>
+        <div class="ss-icon" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b21b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="ss-body">
+          <strong>Download &amp; Scan QR</strong>
+          <span>Download foto atau scan QR Code dengan HP untuk simpan ke galeri.</span>
+        </div>
+      </li>
+    </ol>
+
+    <button id="btnStart" class="splash-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Mulai Menggunakan LabShot
+    </button>
+    <p class="splash-note">Pastikan kamera tersedia sebelum memulai</p>
+
+  </div>
+</div>
+<!-- /SPLASH -->
+
+
+<!-- ▓▓▓▓▓▓▓▓▓▓▓▓▓▓  APP  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓ -->
+<div id="app" class="hidden">
+  <div class="shell">
+
+    <!-- ── KIRI: PENGATURAN ── -->
+    <aside class="panel-settings">
+
+      <div class="brand-row">
+        <img src="assets/logo-ti-umy.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+        <div>
+          <div class="brand-eyebrow">TI UMY Photobox</div>
+          <div class="brand-name">LabShot</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <label class="field-label" for="selTema">Tema</label>
+        <select id="selTema" class="sel">
+          <option value="">— Pilih Tema —</option>
+        </select>
+      </div>
+
+      <div class="settings-section">
+        <label class="field-label" for="selFrame">Frame</label>
+        <select id="selFrame" class="sel" disabled>
+          <option value="">— Pilih tema dulu —</option>
+        </select>
+      </div>
+
+      <div class="settings-section">
+        <label class="field-label" for="selFilter">Filter</label>
+        <select id="selFilter" class="sel">
+          <option value="none">Normal</option>
+          <option value="bw">B&amp;W</option>
+          <option value="warm">Warm</option>
+          <option value="bright">Bright</option>
+          <option value="vintage">Vintage</option>
+          <option value="cool">Cool</option>
+        </select>
+      </div>
+
+      <div class="frame-info-box" id="frameInfoBox">
+        <div class="fib-label">Preview Frame</div>
+        <div class="fib-name" id="fibName">—</div>
+        <div class="fib-count" id="fibCount">—</div>
+        <canvas id="cvPreview" width="1080" height="1920"></canvas>
+        <div class="fib-hint" id="fibHint">Pilih tema dan frame untuk melihat preview.</div>
+      </div>
+
+      <div class="toggles-row">
+        <label class="tog">
+          <input type="checkbox" id="chkMirror" checked>
+          <span class="tog-track"><span class="tog-thumb"></span></span>
+          <span>Mirror</span>
+        </label>
+        <label class="tog">
+          <input type="checkbox" id="chkSound" checked>
+          <span class="tog-track"><span class="tog-thumb"></span></span>
+          <span>Suara</span>
+        </label>
+      </div>
+
+      <div class="cam-select-wrap hidden" id="camSelectWrap">
+        <label class="field-label" for="selCam">Kamera</label>
+        <select id="selCam" class="sel"></select>
+      </div>
+
+      <button class="btn-guide" id="btnGuide">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+        Lihat Panduan
+      </button>
+    </aside>
+
+    <!-- ── TENGAH: KAMERA ── -->
+    <main class="panel-camera">
+
+      <!-- Progress chip -->
+      <div class="progress-chip hidden" id="progressChip">
+        <span class="chip-dot"></span>
+        <span id="chipLabel">Foto 1 dari 1</span>
+        <span class="chip-pips" id="chipPips"></span>
+      </div>
+
+      <!-- Viewfinder -->
+      <div class="viewfinder" id="viewfinder">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="shotCanvas" class="hidden"></canvas>
+        <div class="cam-empty" id="camEmpty">
+          <div class="cam-empty-icon">📷</div>
+          <div class="cam-empty-title">Kamera belum aktif</div>
+          <div class="cam-empty-hint">Klik tombol di bawah untuk mulai</div>
+        </div>
+        <div class="countdown hidden" id="countdown">3</div>
+        <div class="flash hidden"     id="flash"></div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="prog-bar-wrap"><div class="prog-bar" id="progBar"></div></div>
+
+      <!-- Status toast -->
+      <div class="toast idle" id="toast">
+        <span class="toast-icon" id="toastIcon">📷</span>
+        <span id="toastText">Kamera belum aktif.</span>
+      </div>
+
+      <!-- Thumbnails -->
+      <div class="thumbs hidden" id="thumbs"></div>
+
+      <!-- Review bar -->
+      <div class="review-bar hidden" id="reviewBar">
+        <span id="reviewLabel" class="review-label">—</span>
+        <div class="review-btns">
+          <button class="btn ghost" id="btnLeft"   disabled>← Kiri</button>
+          <button class="btn ghost" id="btnRight"  disabled>Kanan →</button>
+          <button class="btn sec"   id="btnRetake" disabled>↺ Retake</button>
+          <button class="btn pri"   id="btnFinish" disabled>✓ Finish</button>
+        </div>
+      </div>
+
+      <!-- Aksi utama -->
+      <div class="cam-actions">
+        <button class="btn sec" id="btnCam">📷 Aktifkan Kamera</button>
+        <button class="btn pri" id="btnShoot" disabled>▶ Mulai Foto</button>
+        <button class="btn ghost" id="btnRedo" disabled>↺ Ulangi</button>
+      </div>
+
+    </main>
+
+    <!-- ── KANAN: HASIL ── -->
+    <aside class="panel-result">
+      <div class="result-header">
+        <div class="result-title">Hasil Foto</div>
+        <span class="pill" id="shotCount">0 foto</span>
+      </div>
+
+      <img id="imgResult" class="img-result hidden" alt="Hasil">
+
+      <div class="empty-result" id="emptyResult">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="12" width="44" height="40" rx="7" stroke="currentColor" stroke-width="2" fill="none" opacity=".25"/>
+          <rect x="16" y="18" width="32" height="22" rx="3" fill="currentColor" opacity=".08"/>
+          <circle cx="32" cy="29" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".4"/>
+          <circle cx="32" cy="29" r="2.5" fill="currentColor" opacity=".35"/>
+        </svg>
+        <p>Foto belum dibuat</p>
+        <span>Pilih tema, frame, aktifkan kamera, lalu mulai foto.</span>
+      </div>
+
+      <div class="result-actions">
+        <a id="btnDownload" class="btn pri disabled" download="labshot.jpg">⬇ Download</a>
+        <button id="btnNew" class="btn sec" disabled>⟲ Foto Baru</button>
+      </div>
+
+      <div class="upload-status" id="uploadStatus"></div>
+
+      <div class="qr-section">
+        <div class="qr-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          Scan QR untuk simpan ke HP
+        </div>
+        <div class="qr-outer" id="qrOuter">
+          <div id="qrBox"></div>
+        </div>
+        <div class="qr-note" id="qrNote">QR aktif setelah foto selesai.</div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+<!-- /APP -->
+
+</body>
+</html>

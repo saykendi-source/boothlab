@@ -1,0 +1,24 @@
+{
+  "themes": [
+    {
+      "slug": "pendadaran",
+      "label": "Selamat Lulus Pendadaran",
+      "frames": []
+    },
+    {
+      "slug": "skp",
+      "label": "Seminar Kerja Praktek",
+      "frames": []
+    },
+    {
+      "slug": "one-piece",
+      "label": "One Piece / Wanted Poster",
+      "frames": []
+    },
+    {
+      "slug": "ti-umy",
+      "label": "TI UMY",
+      "frames": []
+    }
+  ]
+}
