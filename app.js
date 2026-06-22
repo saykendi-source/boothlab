@@ -1055,9 +1055,9 @@ async function startCamera(deviceId = null) {
     if (els.startCameraBtn) {
       els.startCameraBtn.textContent = '✓ Kamera Aktif';
       els.startCameraBtn.classList.add('btn-active');
+      els.startCameraBtn.innerHTML = '<span class="btn__icon">✓</span> Kamera Aktif';
     }
-
-    setStatus('Kamera aktif. Siap memotret!');
+    setStatus('Kamera aktif — pilih template lalu klik Mulai Sesi Foto.');
     applyVideoMirror();
     applyLiveFilter();
     await enumerateCameras();
@@ -1790,28 +1790,29 @@ function initLabShot() {
   /* ── Screen navigation ── */
   document.getElementById('backToSetupBtn')?.addEventListener('click', () => {
     showScreen('screen-setup');
+    /* keep camera running so preview still works on setup */
+    startPreviewLoop();
   });
   document.getElementById('backToSessionBtn')?.addEventListener('click', () => {
     showScreen('screen-session');
+    startPreviewLoop();
   });
   document.getElementById('newSessionBtn')?.addEventListener('click', () => {
     sharePhoto(); /* resets state */
     showScreen('screen-setup');
   });
 
-  /* ── Camera: when active, move to session screen ── */
+  /* ── Camera: STAYS on setup screen, just activates camera ── */
   els.startCameraBtn.addEventListener('click', async () => {
     await startCamera(els.cameraSelect?.value || null);
-    if (stream) {
-      showScreen('screen-session');
-      setSessionBadge('idle');
-    }
+    /* Do NOT change screen — user stays on setup to pick template/filter */
   });
 
-  /* ── Start session ── */
+  /* ── Start session: NOW move to session screen and begin ── */
   els.startSessionBtn?.addEventListener('click', () => {
     showScreen('screen-session');
     setSessionBadge('idle');
+    startPreviewLoop();
     startSession();
   });
 
