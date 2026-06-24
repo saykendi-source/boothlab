@@ -59,12 +59,12 @@ const els = {
 const STORY_W = 1080;
 const STORY_H = 1920;
 
-// Final output 4K portrait untuk hasil download dan hasil yang dibuka lewat QR.
-// Koordinat frame tetap memakai desain 1080 × 1920, lalu saat final dirender 2× menjadi 2160 × 3840.
+// Output akhir dibuat 4K portrait (2160 × 3840) untuk file download dan hasil QR.
+// Semua koordinat template tetap memakai kanvas desain 1080 × 1920,
+// lalu hasil akhirnya diperbesar 2× saat render final.
 const FINAL_OUTPUT_SCALE = 2;
 const FINAL_W = STORY_W * FINAL_OUTPUT_SCALE;
 const FINAL_H = STORY_H * FINAL_OUTPUT_SCALE;
-
 
 // Google Drive Gallery Upload
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo7rb9TPvHjp6NJNphJfgirDSpkkiAWo_srxlpi1qsPQWbAQGGAIzW3t3lLxt6tq4QLw/exec";
@@ -416,10 +416,9 @@ const FRAME_CONFIGS = {
     path: 'assets/frames/expo/12-innovation-panel.png',
     defaultCount: 1,
     slotsByCount: {
-      1: [{ x: 178, y: 494, w: 720, h: 1041, radius: 12 }]
+      1: [{ x: 178, y: 494, w: 720, h: 1041, radius: 14 }]
     },
   },
-
   expo17: {
     label: 'SIE Expo - Ideas Ignite',
     path: 'assets/frames/expo/13-ideas-ignite.png',
@@ -428,7 +427,6 @@ const FRAME_CONFIGS = {
       1: [{ x: 10, y: 280, w: 1060, h: 1336, radius: 18 }]
     },
   },
-
   expo18: {
     label: 'SIE Expo - Collaboration Glow',
     path: 'assets/frames/expo/14-collaboration-glow.png',
@@ -437,7 +435,6 @@ const FRAME_CONFIGS = {
       1: [{ x: 80, y: 508, w: 921, h: 931, radius: 18 }]
     },
   },
-
   expo19: {
     label: 'SIE Expo - Future Circuit',
     path: 'assets/frames/expo/15-future-circuit.png',
@@ -446,7 +443,6 @@ const FRAME_CONFIGS = {
       1: [{ x: 88, y: 550, w: 903, h: 1055, radius: 18 }]
     },
   },
-
   expo20: {
     label: 'SIE Expo - Science Spark',
     path: 'assets/frames/expo/16-science-spark.png',
@@ -455,7 +451,6 @@ const FRAME_CONFIGS = {
       1: [{ x: 106, y: 748, w: 856, h: 804, radius: 18 }]
     },
   },
-
   expo21: {
     label: 'SIE Expo - Bold Blueprint',
     path: 'assets/frames/expo/17-bold-blueprint.png',
@@ -464,7 +459,6 @@ const FRAME_CONFIGS = {
       1: [{ x: 176, y: 634, w: 892, h: 913, radius: 18 }]
     },
   },
-
   expo22: {
     label: 'SIE Expo - Smart Collaboration',
     path: 'assets/frames/expo/18-smart-collaboration.png',
@@ -473,6 +467,7 @@ const FRAME_CONFIGS = {
       1: [{ x: 120, y: 433, w: 888, h: 998, radius: 18 }]
     },
   },
+
   ft1: {
     label: 'FT UMY - Inovasi Rekayasa Dampak',
     path: 'assets/frames/fakultas-teknik/01-ft-innovation-dampak.png',
@@ -1376,13 +1371,13 @@ async function finishPhotoSession() {
   setBusy(true);
   reviewReady = false;
   refreshReviewControls();
-  setStatus('Membuat hasil akhir 4K dan QR…');
+  setStatus('Membuat hasil akhir dan QR…');
   setProgress(80);
 
   await renderFinalImage();
 
   setProgress(100);
-  setStatus('Selesai! QR dan tombol download sudah tersedia dalam kualitas 4K. Gunakan tombol Foto Baru untuk pengunjung berikutnya.');
+  setStatus('Selesai! QR dan tombol download sudah tersedia. Gunakan tombol Foto Baru untuk pengunjung berikutnya.');
   setBusy(false);
   refreshReviewControls();
 }
@@ -1623,8 +1618,6 @@ async function createDriveUploadBlobFromCanvas(sourceCanvas) {
   const uploadCtx = uploadCanvas.getContext('2d');
   uploadCtx.imageSmoothingEnabled = true;
   uploadCtx.imageSmoothingQuality = 'high';
-
-  // Yang diupload ke Drive/QR adalah versi 4K portrait, bukan versi kecil 720 × 1280.
   uploadCtx.drawImage(sourceCanvas, 0, 0, DRIVE_UPLOAD_W, DRIVE_UPLOAD_H);
   return await new Promise(resolve => uploadCanvas.toBlob(resolve, 'image/jpeg', DRIVE_UPLOAD_QUALITY));
 }
@@ -1687,17 +1680,8 @@ async function renderFinalImage() {
   const ctx     = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-
-  // Semua koordinat slot/frame tetap mengikuti desain 1080 × 1920.
-  // Transform ini membuat hasil akhir menjadi 2160 × 3840 tanpa mengubah konfigurasi slot.
   ctx.setTransform(FINAL_OUTPUT_SCALE, 0, 0, FINAL_OUTPUT_SCALE, 0, 0);
 
-  /*
-    1. Base
-    2. Full-bleed foto pertama sebagai background bawah template
-    3. Foto utama di slot transparan
-    4. Frame overlay paling atas
-  */
   fillBase(ctx, frameKey);
   if (!usesTopOverlayLook(frameKey)) {
     drawFullBleedPhotoBackground(ctx, images[0]);
@@ -1730,10 +1714,8 @@ async function renderFinalImage() {
   currentShareUrl = makePhotoPageUrl(currentUploadFileName);
   console.log('LabShot QR URL:', currentShareUrl);
 
-  // QR sekarang unik untuk setiap sesi/foto, jadi pengunjung tidak melihat foto lain.
   renderQRCode(currentShareUrl);
 
-  // Upload berjalan di background agar antrean photobox tidak tertahan.
   const driveUploadBlob = await createDriveUploadBlobFromCanvas(canvas);
   uploadPhotoToGoogleDrive(driveUploadBlob, currentUploadFileName)
     .then(() => {
@@ -1886,7 +1868,7 @@ function initLabShot() {
   updateFrameAutoInfo();
   renderFramePreview();
   setStatus('Kamera belum aktif. Klik Aktifkan Kamera.');
-  console.log('LabShot v38 loaded. Output final dan QR 4K aktif.');
+  console.log('LabShot v37 loaded. Tema One Piece, Expo, FT, dan TI UMY aktif.');
 }
 
 if (document.readyState === 'loading') {
