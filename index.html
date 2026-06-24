@@ -4,262 +4,185 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LabShot – Web Photobox</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
+  <main class="app-shell">
 
-  <!-- ══════════════════════════════════════════
-       SCREEN 1 · PENGATURAN SESI
-  ══════════════════════════════════════════ -->
-  <div id="screen-setup" class="screen screen--active">
-    <div class="screen__bg"></div>
+    <!-- ════════ LEFT PANEL ════════ -->
+    <section class="hero-panel">
 
-    <header class="topbar">
-      <div class="topbar__brand">
-        <img src="assets/logo-ti-umy.png" class="topbar__logo" alt="TI UMY" />
-        <span class="topbar__name">LabShot</span>
-      </div>
-      <span class="topbar__badge">Web Photobox</span>
-    </header>
-
-    <div class="setup__body">
-
-      <!-- LEFT: Frame preview -->
-      <div class="setup__preview-col">
-        <div class="preview-frame-card">
-          <div class="preview-frame-card__top">
-            <p class="label-eyebrow">Preview Template</p>
-            <div class="preview-frame-card__meta">
-              <h2 id="framePreviewTitle" class="preview-frame-card__title">—</h2>
-              <span id="framePreviewCount" class="pill pill--blue">1 foto</span>
-            </div>
-          </div>
-          <div class="preview-stage">
-            <canvas id="framePreviewCanvas" width="1080" height="1920" aria-label="Preview frame"></canvas>
-          </div>
-          <p id="framePreviewNote" class="preview-note">Pilih tema & template di kanan, lalu atur pengaturan sesi.</p>
+      <div class="brand-row">
+        <div class="logo-mark"><img src="assets/logo-ti-umy.png" alt="Logo TI UMY" /></div>
+        <div>
+          <p class="eyebrow">Portable Web Photobox · Story IG</p>
+          <h1>LabShot</h1>
         </div>
       </div>
 
-      <!-- RIGHT: Settings -->
-      <div class="setup__settings-col">
-        <div class="settings-card">
+      <!-- Camera preview -->
+      <div class="camera-card">
+        <video id="cameraPreview" autoplay playsinline muted></video>
+        <canvas id="shotCanvas" class="hidden"></canvas>
 
-          <div class="settings-card__section">
-            <p class="label-eyebrow">Template & Filter</p>
-            <div class="field-row">
-              <label class="field">
-                <span class="field__label">Tema</span>
-                <select id="themeSelect" class="select"></select>
-              </label>
-              <label class="field">
-                <span class="field__label">Template</span>
-                <select id="frameTheme" class="select"></select>
-              </label>
-            </div>
-            <label class="field field--full">
-              <span class="field__label">Filter</span>
-              <select id="filterMode" class="select">
-                <option value="none" selected>Normal</option>
-                <option value="bw">Hitam &amp; Putih</option>
-                <option value="warm">Warm</option>
-                <option value="bright">Bright</option>
-                <option value="vintage">Vintage</option>
-                <option value="cool">Cool</option>
-              </select>
-            </label>
-            <div class="auto-count-badge">
-              <span class="icon-cam">📸</span>
-              <div>
-                <strong id="frameAutoCount">1 foto otomatis</strong>
-                <small id="frameAutoHint">Jumlah foto mengikuti template.</small>
-              </div>
-            </div>
-          </div>
+        <div id="emptyCamera" class="empty-camera">
+          <span>📷</span>
+          <strong>Kamera belum aktif</strong>
+          <small>Klik "Aktifkan Kamera" untuk memulai.</small>
+        </div>
 
-          <div class="settings-card__section">
-            <p class="label-eyebrow">Kamera</p>
-            <label class="field field--full">
-              <span class="field__label">Perangkat Kamera</span>
-              <div class="camera-select-row">
-                <select id="cameraSelect" class="select">
-                  <option value="">Kamera default</option>
-                </select>
-                <button type="button" id="refreshCameraBtn" class="btn-icon" title="Refresh">↻</button>
-              </div>
-            </label>
-            <div class="toggle-group">
-              <label class="toggle-item">
-                <span class="toggle-item__label">Mirror</span>
-                <span class="toggle-wrap">
-                  <input type="checkbox" id="mirrorToggle" checked class="toggle-input" />
-                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                </span>
-              </label>
-              <label class="toggle-item">
-                <span class="toggle-item__label">Suara Shutter</span>
-                <span class="toggle-wrap">
-                  <input type="checkbox" id="soundToggle" checked class="toggle-input" />
-                  <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                </span>
-              </label>
-            </div>
-          </div>
+        <div id="countdown" class="countdown hidden">3</div>
+        <div id="flash" class="flash hidden"></div>
+      </div>
 
-          <div class="settings-card__cta">
-            <button id="startCameraBtn" class="btn btn--secondary btn--full">
-              <span class="btn__icon">📷</span> Aktifkan Kamera
-            </button>
-            <button id="startSessionBtn" class="btn btn--primary btn--full" disabled>
-              <span class="btn__icon">▶</span> Mulai Sesi Foto
-            </button>
-          </div>
+      <!-- Progress bar -->
+      <div class="progress-wrap">
+        <div id="progressBar" class="progress-fill"></div>
+      </div>
+      <p id="statusText" class="status-text">Kamera belum aktif.</p>
 
+      <!-- Thumbnail strip -->
+      <div id="photoGrid" class="photo-grid hidden"></div>
+
+      <!-- Review controls setelah semua foto diambil -->
+      <div id="reviewControls" class="review-controls hidden">
+        <div class="review-info">
+          <strong id="selectedPhotoLabel">Foto terpilih: -</strong>
+          <small>Atur urutan foto, retake foto tertentu, lalu klik Finish untuk membuat hasil akhir dan QR.</small>
+        </div>
+        <div class="review-actions">
+          <button id="moveLeftBtn" class="btn btn-ghost" disabled>← Geser Kiri</button>
+          <button id="moveRightBtn" class="btn btn-ghost" disabled>Geser Kanan →</button>
+          <button id="retakeSelectedBtn" class="btn btn-secondary" disabled>↺ Retake Foto Ini</button>
+          <button id="finishBtn" class="btn btn-primary" disabled>✓ Finish & Buat QR</button>
         </div>
       </div>
 
-    </div><!-- /setup__body -->
-  </div><!-- /screen-setup -->
-
-
-  <!-- ══════════════════════════════════════════
-       SCREEN 2 · SESI FOTO
-  ══════════════════════════════════════════ -->
-  <div id="screen-session" class="screen">
-
-    <header class="session-topbar">
-      <button id="backToSetupBtn" class="back-btn">
-        <span class="back-btn__arrow">←</span> Pengaturan
-      </button>
-      <div class="session-topbar__center">
-        <span class="session-topbar__title">Sesi Foto</span>
-      </div>
-      <div id="sessionStatus" class="session-badge session-badge--idle">Siap</div>
-    </header>
-
-    <div class="session__body">
-
-      <!-- Camera area -->
-      <div class="camera-zone">
-        <div class="camera-card">
-          <video id="cameraPreview" autoplay playsinline muted></video>
-          <canvas id="shotCanvas" class="hidden"></canvas>
-          <div id="emptyCamera" class="camera-empty">
-            <span class="camera-empty__icon">📷</span>
-            <strong>Kamera belum aktif</strong>
-            <small>Kembali ke Pengaturan dan aktifkan kamera.</small>
-          </div>
-          <div id="countdown" class="countdown hidden">3</div>
-          <div id="flash" class="flash hidden"></div>
-        </div>
-
-        <!-- Progress -->
-        <div class="progress-strip">
-          <div class="progress-strip__bar">
-            <div id="progressBar" class="progress-strip__fill"></div>
-          </div>
-          <p id="statusText" class="progress-strip__text">Siap mengambil foto.</p>
-        </div>
-
-        <!-- Thumbnail grid -->
-        <div id="photoGrid" class="photo-strip hidden"></div>
-
-        <!-- Review controls -->
-        <div id="reviewControls" class="review-bar hidden">
-          <strong id="selectedPhotoLabel" class="review-bar__label">Pilih foto untuk diatur</strong>
-          <div class="review-bar__actions">
-            <button id="moveLeftBtn"      class="btn btn--ghost btn--sm" disabled>← Kiri</button>
-            <button id="moveRightBtn"     class="btn btn--ghost btn--sm" disabled>Kanan →</button>
-            <button id="retakeSelectedBtn" class="btn btn--secondary btn--sm" disabled>↺ Retake</button>
-          </div>
-        </div>
-      </div><!-- /camera-zone -->
-
-      <!-- Side: frame mini preview -->
-      <div class="session-sidebar">
-        <div class="session-sidebar__card">
-          <p class="label-eyebrow">Frame aktif</p>
-          <canvas id="sessionFramePreview" class="session-frame-mini" width="540" height="960"></canvas>
-          <div class="session-sidebar__actions">
-            <button id="retakeBtn" class="btn btn--ghost btn--sm" disabled>↺ Ulangi Semua</button>
-            <button id="finishBtn" class="btn btn--primary btn--sm" disabled>
-              ✓ Selesai & Lihat Hasil
-            </button>
-          </div>
-        </div>
+      <!-- Action buttons -->
+      <div class="primary-actions">
+        <button id="startCameraBtn"  class="btn btn-secondary">📷 Aktifkan Kamera</button>
+        <button id="startSessionBtn" class="btn btn-primary" disabled>▶ Mulai Foto</button>
+        <button id="retakeBtn"       class="btn btn-ghost"   disabled>↺ Ulangi</button>
       </div>
 
-    </div><!-- /session__body -->
-  </div><!-- /screen-session -->
+    </section><!-- /hero-panel -->
 
+    <!-- ════════ RIGHT PANEL ════════ -->
+    <aside class="control-panel">
 
-  <!-- ══════════════════════════════════════════
-       SCREEN 3 · HASIL FOTO + QR
-  ══════════════════════════════════════════ -->
-  <div id="screen-result" class="screen">
-
-    <header class="result-topbar">
-      <button id="backToSessionBtn" class="back-btn">
-        <span class="back-btn__arrow">←</span> Sesi Foto
-      </button>
-      <div class="result-topbar__center">
-        <span class="result-topbar__title">Hasil Foto</span>
+      <div class="panel-header">
+        <p class="eyebrow">Pengaturan Sesi</p>
+        <h2>Mode Foto</h2>
       </div>
-      <button id="newSessionBtn" class="btn btn--ghost btn--sm">+ Sesi Baru</button>
-    </header>
+      <div class="auto-layout-note">
+        <span class="auto-layout-title">Jumlah Take Foto</span>
+        <strong id="frameAutoCount">1 foto otomatis</strong>
+        <small id="frameAutoHint">Jumlah take foto otomatis mengikuti frame yang dipilih.</small>
+      </div>
+      <!-- Tema + Template -->
+      <div class="grid-2">
+        <label class="field">
+          <span>Tema</span>
+          <select id="themeSelect"></select>
+        </label>
+        <label class="field">
+          <span>Template</span>
+          <select id="frameTheme"></select>
+        </label>
+      </div>
 
-    <div class="result__body">
+      <!-- Filter -->
+      <div class="grid-2">
+        <label class="field">
+          <span>Filter</span>
+          <select id="filterMode">
+            <option value="none"    selected>Normal</option>
+            <option value="bw">B&amp;W</option>
+            <option value="warm">Warm</option>
+            <option value="bright">Bright</option>
+            <option value="vintage">Vintage</option>
+            <option value="cool">Cool</option>
+          </select>
+        </label>
+      </div>
 
-      <!-- Photo result -->
-      <div class="result__photo-col">
-        <div class="result-photo-card">
-          <div class="result-photo-card__frame">
-            <img id="finalPreview" class="result-photo hidden" alt="Hasil foto" />
-            <div id="emptyResult" class="result-empty">
-              <span>🖼️</span>
-              <p>Hasil foto akan muncul di sini</p>
-            </div>
+      <!-- Preview frame otomatis -->
+      <section class="frame-preview-card">
+        <div class="frame-preview-info">
+          <div>
+            <p class="eyebrow">Preview Frame</p>
+            <h2 id="framePreviewTitle">Yogyakarta City Series</h2>
           </div>
-          <div class="result-photo-card__actions">
-            <a id="downloadBtn" class="btn btn--primary btn--full disabled" download="labshot.png">
-              ⬇ Download Foto
-            </a>
-            <button id="shareBtn" class="btn btn--secondary btn--full" disabled>⟲ Foto Lagi</button>
-          </div>
-          <p id="shotCounter" class="result-photo-card__meta"></p>
+          <span id="framePreviewCount" class="pill">1 foto</span>
         </div>
-      </div>
+        <div class="frame-preview-stage"><canvas id="framePreviewCanvas" class="frame-preview-canvas" width="1080" height="1920" aria-label="Preview frame yang dipilih"></canvas></div>
+        <small id="framePreviewNote">Preview frame diperbesar agar template mudah dibaca. Pilih filter, lalu klik Mulai Foto.</small>
+      </section>
 
-      <!-- QR Code -->
-      <div class="result__qr-col">
-        <div class="qr-card">
-          <p class="label-eyebrow">Bagikan Foto</p>
-          <h2 class="qr-card__title">Scan untuk<br/>Download</h2>
-          <p class="qr-card__sub">Foto disimpan ke Google Drive dan bisa diakses via QR ini.</p>
-          <div class="qr-card__box">
-            <div id="qrCode" class="qr-inner"></div>
-            <p id="qrNote" class="qr-hint">QR aktif setelah foto selesai dibuat.</p>
-          </div>
-          <div class="qr-card__divider"></div>
-          <p class="qr-card__footer">
-            Scan dengan kamera HP anda untuk langsung membuka link download foto.
-          </p>
+      <!-- Pilih kamera -->
+      <label class="field camera-field" id="cameraSelectWrap">
+        <span>Pilih Kamera</span>
+        <div class="camera-select-row">
+          <select id="cameraSelect">
+            <option value="">Kamera default</option>
+          </select>
+          <button type="button" id="refreshCameraBtn" class="btn btn-ghost camera-refresh-btn">↻</button>
         </div>
+        <small>Pilih webcam eksternal jika tersedia. Jika nama kamera belum muncul, klik Aktifkan Kamera dulu lalu tekan ↻.</small>
+      </label>
+
+      <!-- Toggles -->
+      <div class="toggle-row">
+        <label class="toggle-label">
+          <input type="checkbox" id="mirrorToggle" checked />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          Mirror
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="soundToggle" checked />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          Suara
+        </label>
       </div>
+</aside><!-- /control-panel -->
 
-    </div><!-- /result__body -->
-  </div><!-- /screen-result -->
+    <!-- ════════ RIGHT RESULT PANEL ════════ -->
+    <aside class="result-panel">
 
-  <!-- hidden inputs kept for JS compat -->
-  <input type="hidden" id="eventName" value="labshot" />
-  <input type="hidden" id="layoutMode" value="auto" />
-  <input type="hidden" id="countdownSeconds" value="3" />
-  <input type="hidden" id="customFrame" value="" />
 
+      <!-- ════ Result ════ -->
+      <section class="result-card">
+        <div class="result-header">
+          <div>
+            <p class="eyebrow">Hasil Foto</p>
+            <h2>Preview Story IG</h2>
+          </div>
+          <span id="shotCounter" class="pill">0 foto</span>
+        </div>
+
+        <img id="finalPreview" class="final-preview hidden" alt="Preview hasil photobox" />
+        <div id="emptyResult" class="empty-result">Hasil foto akan muncul di sini.</div>
+
+        <div class="download-row">
+          <a id="downloadBtn" class="btn btn-primary disabled" download="labshot.png">⬇ Download</a>
+          <button id="shareBtn" class="btn btn-secondary" disabled>⟲ Foto Baru</button>
+        </div>
+
+        <div class="qr-wrap">
+          <div id="qrCode" class="qr-code"></div>
+          <small id="qrNote">QR aktif setelah foto dibuat.</small>
+        </div>
+      </section>
+
+    
+    </aside><!-- /result-panel -->
+
+  </main>
+
+  <footer class="footer-note">
+    Jalankan via HTTPS · GitHub Pages · atau localhost agar kamera dapat diakses browser.
+  </footer>
 </body>
 </html>

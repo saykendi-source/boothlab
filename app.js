@@ -59,11 +59,19 @@ const els = {
 const STORY_W = 1080;
 const STORY_H = 1920;
 
+// Final output 4K portrait untuk hasil download dan hasil yang dibuka lewat QR.
+// Koordinat frame tetap memakai desain 1080 × 1920, lalu saat final dirender 2× menjadi 2160 × 3840.
+const FINAL_OUTPUT_SCALE = 2;
+const FINAL_W = STORY_W * FINAL_OUTPUT_SCALE;
+const FINAL_H = STORY_H * FINAL_OUTPUT_SCALE;
+
+
 // Google Drive Gallery Upload
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyo7rb9TPvHjp6NJNphJfgirDSpkkiAWo_srxlpi1qsPQWbAQGGAIzW3t3lLxt6tq4QLw/exec";
 const DRIVE_FOLDER_URL = "https://drive.google.com/drive/folders/1HLXr6Y-mX1EqveyV-KPtAQp-5Pt0e6GJ";
-const DRIVE_UPLOAD_W = 720;
-const DRIVE_UPLOAD_H = 1280;
+const DRIVE_UPLOAD_W = FINAL_W;
+const DRIVE_UPLOAD_H = FINAL_H;
+const DRIVE_UPLOAD_QUALITY = 0.92;
 
 /*
   Semua frame harus berada di assets/frames.
@@ -402,6 +410,69 @@ const FRAME_CONFIGS = {
       1: [{ x: 47, y: 770, w: 989, h: 753, radius: 12 }]
     },
   },
+
+  expo16: {
+    label: 'SIE Expo - Innovation Panel',
+    path: 'assets/frames/expo/12-innovation-panel.png',
+    defaultCount: 1,
+    slotsByCount: {
+      1: [{ x: 178, y: 494, w: 720, h: 1041, radius: 12 }]
+    },
+  },
+
+  expo17: {
+    label: 'SIE Expo - Ideas Ignite',
+    path: 'assets/frames/expo/13-ideas-ignite.png',
+    defaultCount: 1,
+    slotsByCount: {
+      1: [{ x: 10, y: 280, w: 1060, h: 1336, radius: 18 }]
+    },
+  },
+
+  expo18: {
+    label: 'SIE Expo - Collaboration Glow',
+    path: 'assets/frames/expo/14-collaboration-glow.png',
+    defaultCount: 1,
+    slotsByCount: {
+      1: [{ x: 80, y: 508, w: 921, h: 931, radius: 18 }]
+    },
+  },
+
+  expo19: {
+    label: 'SIE Expo - Future Circuit',
+    path: 'assets/frames/expo/15-future-circuit.png',
+    defaultCount: 1,
+    slotsByCount: {
+      1: [{ x: 88, y: 550, w: 903, h: 1055, radius: 18 }]
+    },
+  },
+
+  expo20: {
+    label: 'SIE Expo - Science Spark',
+    path: 'assets/frames/expo/16-science-spark.png',
+    defaultCount: 1,
+    slotsByCount: {
+      1: [{ x: 106, y: 748, w: 856, h: 804, radius: 18 }]
+    },
+  },
+
+  expo21: {
+    label: 'SIE Expo - Bold Blueprint',
+    path: 'assets/frames/expo/17-bold-blueprint.png',
+    defaultCount: 1,
+    slotsByCount: {
+      1: [{ x: 176, y: 634, w: 892, h: 913, radius: 18 }]
+    },
+  },
+
+  expo22: {
+    label: 'SIE Expo - Smart Collaboration',
+    path: 'assets/frames/expo/18-smart-collaboration.png',
+    defaultCount: 1,
+    slotsByCount: {
+      1: [{ x: 120, y: 433, w: 888, h: 998, radius: 18 }]
+    },
+  },
   ft1: {
     label: 'FT UMY - Inovasi Rekayasa Dampak',
     path: 'assets/frames/fakultas-teknik/01-ft-innovation-dampak.png',
@@ -556,7 +627,7 @@ const THEME_CONFIGS = [
   {
     value: 'expo',
     label: 'SIE Expo 2026',
-    frames: ['expo1', 'expo2', 'expo3', 'expo4', 'expo6', 'expo7', 'expo8', 'expo9', 'expo11', 'expo13', 'expo15']
+    frames: ['expo1', 'expo2', 'expo3', 'expo4', 'expo6', 'expo7', 'expo8', 'expo9', 'expo11', 'expo13', 'expo15', 'expo16', 'expo17', 'expo18', 'expo19', 'expo20', 'expo21', 'expo22']
   },
   {
     value: 'ft',
@@ -1055,9 +1126,9 @@ async function startCamera(deviceId = null) {
     if (els.startCameraBtn) {
       els.startCameraBtn.textContent = '✓ Kamera Aktif';
       els.startCameraBtn.classList.add('btn-active');
-      els.startCameraBtn.innerHTML = '<span class="btn__icon">✓</span> Kamera Aktif';
     }
-    setStatus('Kamera aktif — pilih template lalu klik Mulai Sesi Foto.');
+
+    setStatus('Kamera aktif. Siap memotret!');
     applyVideoMirror();
     applyLiveFilter();
     await enumerateCameras();
@@ -1147,7 +1218,6 @@ async function startSession() {
   retakeSlotIndex = -1;
   reviewReady = false;
   updatePhotoGrid([]);
-  setSessionBadge('running');
 
   const frameKey = resolveFrameKey();
   const total = getAutoPhotoCount(frameKey);
@@ -1198,9 +1268,10 @@ function updatePhotoGrid(photos) {
     const img = document.createElement('img');
     img.src = src;
     img.alt = `Foto ${i + 1}`;
+    img.className = 'thumb-img';
 
     const badge = document.createElement('span');
-    badge.className = 'thumb-badge';
+    badge.className = 'thumb-index';
     badge.textContent = i + 1;
 
     wrap.appendChild(img);
@@ -1305,13 +1376,13 @@ async function finishPhotoSession() {
   setBusy(true);
   reviewReady = false;
   refreshReviewControls();
-  setStatus('Membuat hasil akhir dan QR…');
+  setStatus('Membuat hasil akhir 4K dan QR…');
   setProgress(80);
 
   await renderFinalImage();
 
   setProgress(100);
-  setStatus('Selesai! QR dan tombol download sudah tersedia. Gunakan tombol Foto Baru untuk pengunjung berikutnya.');
+  setStatus('Selesai! QR dan tombol download sudah tersedia dalam kualitas 4K. Gunakan tombol Foto Baru untuk pengunjung berikutnya.');
   setBusy(false);
   refreshReviewControls();
 }
@@ -1550,8 +1621,12 @@ async function createDriveUploadBlobFromCanvas(sourceCanvas) {
   uploadCanvas.width = DRIVE_UPLOAD_W;
   uploadCanvas.height = DRIVE_UPLOAD_H;
   const uploadCtx = uploadCanvas.getContext('2d');
+  uploadCtx.imageSmoothingEnabled = true;
+  uploadCtx.imageSmoothingQuality = 'high';
+
+  // Yang diupload ke Drive/QR adalah versi 4K portrait, bukan versi kecil 720 × 1280.
   uploadCtx.drawImage(sourceCanvas, 0, 0, DRIVE_UPLOAD_W, DRIVE_UPLOAD_H);
-  return await new Promise(resolve => uploadCanvas.toBlob(resolve, 'image/jpeg', 0.62));
+  return await new Promise(resolve => uploadCanvas.toBlob(resolve, 'image/jpeg', DRIVE_UPLOAD_QUALITY));
 }
 
 function blobToBase64(blob) {
@@ -1575,7 +1650,7 @@ function makeDriveFileName() {
   const mi = String(now.getMinutes()).padStart(2, '0');
   const ss = String(now.getSeconds()).padStart(2, '0');
   const rand = Math.random().toString(36).slice(2, 5);
-  return `ls-${yy}${mm}${dd}-${hh}${mi}${ss}-${rand}.jpg`;
+  return `ls-${yy}${mm}${dd}-${hh}${mi}${ss}-4k-${rand}.jpg`;
 }
 
 function makePhotoPageUrl(fileName) {
@@ -1607,9 +1682,15 @@ async function renderFinalImage() {
   const slots = getSlotsForFrame(frameKey, total);
 
   const canvas  = document.createElement('canvas');
-  canvas.width  = STORY_W;
-  canvas.height = STORY_H;
+  canvas.width  = FINAL_W;
+  canvas.height = FINAL_H;
   const ctx     = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  // Semua koordinat slot/frame tetap mengikuti desain 1080 × 1920.
+  // Transform ini membuat hasil akhir menjadi 2160 × 3840 tanpa mengubah konfigurasi slot.
+  ctx.setTransform(FINAL_OUTPUT_SCALE, 0, 0, FINAL_OUTPUT_SCALE, 0, 0);
 
   /*
     1. Base
@@ -1640,7 +1721,7 @@ async function renderFinalImage() {
     .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 
   els.downloadBtn.href     = finalObjectUrl;
-  els.downloadBtn.download = `${safeEvent}-story-${Date.now()}.png`;
+  els.downloadBtn.download = `${safeEvent}-story-4k-${Date.now()}.png`;
   els.downloadBtn.classList.remove('disabled');
   els.shareBtn.disabled    = false;
   els.retakeBtn.disabled   = false;
@@ -1656,7 +1737,7 @@ async function renderFinalImage() {
   const driveUploadBlob = await createDriveUploadBlobFromCanvas(canvas);
   uploadPhotoToGoogleDrive(driveUploadBlob, currentUploadFileName)
     .then(() => {
-      els.qrNote.innerHTML = `Foto sesi ini sudah dikirim. Scan QR untuk membuka hanya foto Anda. Jika sulit terbaca, klik <a class="qr-note-link" href="${currentShareUrl}" target="_blank" rel="noopener">buka link foto</a>.`;
+      els.qrNote.innerHTML = `Foto sesi ini sudah dikirim dalam kualitas 4K. Scan QR untuk membuka hanya foto Anda. Jika sulit terbaca, klik <a class="qr-note-link" href="${currentShareUrl}" target="_blank" rel="noopener">buka link foto</a>.`;
     })
     .catch((error) => {
       console.error('Upload Google Drive gagal:', error);
@@ -1742,44 +1823,6 @@ function handleCustomFrameUpload(e) {
   reader.readAsDataURL(file);
 }
 
-/* ══════════════════════════════════════════════════
-   SCREEN NAVIGATION
-══════════════════════════════════════════════════ */
-
-function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('screen--active'));
-  const target = document.getElementById(screenId);
-  if (target) target.classList.add('screen--active');
-  window.scrollTo({ top: 0, behavior: 'instant' });
-}
-
-/* Sync the small sidebar canvas on Screen 2 with the main framePreviewCanvas */
-function syncSessionSidebarPreview() {
-  const miniCanvas = document.getElementById('sessionFramePreview');
-  const mainCanvas = els.framePreviewCanvas;
-  if (!miniCanvas || !mainCanvas) return;
-  const ctx = miniCanvas.getContext('2d');
-  ctx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
-  ctx.drawImage(mainCanvas, 0, 0, miniCanvas.width, miniCanvas.height);
-}
-
-/* Update session badge */
-function setSessionBadge(state) {
-  const badge = document.getElementById('sessionStatus');
-  if (!badge) return;
-  badge.className = 'session-badge';
-  if (state === 'running') {
-    badge.classList.add('session-badge--running');
-    badge.textContent = '📸 Sedang Foto…';
-  } else if (state === 'done') {
-    badge.classList.add('session-badge--done');
-    badge.textContent = '✓ Selesai';
-  } else {
-    badge.classList.add('session-badge--idle');
-    badge.textContent = 'Siap';
-  }
-}
-
 /* ── Event wiring ─────────────────────────────────────── */
 function initLabShot() {
   if (!els.startCameraBtn || !els.video) {
@@ -1787,56 +1830,18 @@ function initLabShot() {
     return;
   }
 
-  /* ── Screen navigation ── */
-  document.getElementById('backToSetupBtn')?.addEventListener('click', () => {
-    showScreen('screen-setup');
-    /* keep camera running so preview still works on setup */
-    startPreviewLoop();
-  });
-  document.getElementById('backToSessionBtn')?.addEventListener('click', () => {
-    showScreen('screen-session');
-    startPreviewLoop();
-  });
-  document.getElementById('newSessionBtn')?.addEventListener('click', () => {
-    sharePhoto(); /* resets state */
-    showScreen('screen-setup');
-  });
-
-  /* ── Camera: STAYS on setup screen, just activates camera ── */
-  els.startCameraBtn.addEventListener('click', async () => {
-    await startCamera(els.cameraSelect?.value || null);
-    /* Do NOT change screen — user stays on setup to pick template/filter */
-  });
-
-  /* ── Start session: NOW move to session screen and begin ── */
-  els.startSessionBtn?.addEventListener('click', () => {
-    showScreen('screen-session');
-    setSessionBadge('idle');
-    startPreviewLoop();
-    startSession();
-  });
-
+  els.startCameraBtn.addEventListener('click', () => startCamera(els.cameraSelect?.value || null));
+  els.startSessionBtn?.addEventListener('click', startSession);
   els.retakeBtn?.addEventListener('click', () => {
     resetResult(true);
     els.retakeBtn.disabled = true;
-    setSessionBadge('idle');
     startPreviewLoop();
   });
   els.moveLeftBtn?.addEventListener('click', () => moveSelectedPhoto(-1));
   els.moveRightBtn?.addEventListener('click', () => moveSelectedPhoto(1));
   els.retakeSelectedBtn?.addEventListener('click', retakeSelectedPhoto);
-
-  /* ── Finish: go to result screen ── */
-  els.finishBtn?.addEventListener('click', async () => {
-    setSessionBadge('done');
-    await finishPhotoSession();
-    showScreen('screen-result');
-  });
-
-  els.shareBtn?.addEventListener('click', () => {
-    sharePhoto();
-    showScreen('screen-setup');
-  });
+  els.finishBtn?.addEventListener('click', finishPhotoSession);
+  els.shareBtn?.addEventListener('click', sharePhoto);
   els.customFrame?.addEventListener('change', handleCustomFrameUpload);
 
   els.mirrorToggle?.addEventListener('change', () => {
@@ -1869,15 +1874,9 @@ function initLabShot() {
     applyLiveFilter();
     renderFramePreview();
     if (capturedPhotos.length) {
-      setStatus('Filter diperbarui.');
+      setStatus('Filter live diperbarui. Untuk hasil akhir, klik Finish lagi setelah cocok.');
     }
   });
-
-  /* Keep sidebar mini-preview in sync */
-  const origRenderFramePreview = renderFramePreview;
-  const _origRFP = renderFramePreview;
-  // Hook after each framePreview render
-  setInterval(syncSessionSidebarPreview, 500);
 
   applyVideoMirror();
   initThemeTemplateMenus();
@@ -1886,8 +1885,8 @@ function initLabShot() {
   resetResult(true);
   updateFrameAutoInfo();
   renderFramePreview();
-  setStatus('Atur template dan aktifkan kamera untuk mulai.');
-  console.log('LabShot v38 — 3-screen redesign loaded.');
+  setStatus('Kamera belum aktif. Klik Aktifkan Kamera.');
+  console.log('LabShot v38 loaded. Output final dan QR 4K aktif.');
 }
 
 if (document.readyState === 'loading') {
